@@ -17,7 +17,7 @@ export default function HomePage() {
         />
       </div>
 
-      <h1 className="text-2xl font-bold text-center text-white">
+      <h1 className="text-2xl font-bold text-center text-green-300">
         Symbiotic Meme Generator
       </h1>
       <div className="mt-8">

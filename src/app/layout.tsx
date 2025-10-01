@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <main className="flex-1 flex items-center justify-center p-4">
           {children}
         </main>
-        <footer className="p-4 text-center text-white text-xl animate-pulse">
+        <footer className="p-4 text-center text-white text animate-pulse">
           © 2025 Sham (CodeWithShamim)
         </footer>
       </body>

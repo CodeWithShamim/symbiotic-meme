@@ -4,27 +4,45 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export default function MemeForm() {
   const [username, setUsername] = useState('')
   const [avatar, setAvatar] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [meme, setMeme] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchProfile = async () => {
     if (!username) return
     setLoading(true)
     setMeme(null)
+    setError(null)
 
-    // ✅ Get avatar from Twitter
     const url = `https://unavatar.io/x/${username}`
     setAvatar(url)
 
-    // Simulate AI meme generation
-    setTimeout(() => {
-      setMeme(url) // example template image from /public/memes
+    try {
+      const res = await fetch('/api/generate-meme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: url }),
+      })
+      const data = await res.json()
+
+      console.log({ data })
+      //   error
+      if (data?.error) {
+        setError(data?.error?.message)
+      }
+      if (data.memeUrl) setMeme(data.memeUrl)
+    } catch (err) {
+      console.error(err)
+      alert('Failed to generate meme')
+    } finally {
       setLoading(false)
-    }, 2000)
+      setMeme(url)
+    }
   }
 
   return (
@@ -40,12 +58,12 @@ export default function MemeForm() {
               placeholder="Enter your X username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="bg-black border-green-500 text-green-400"
+              className="bg-black border-white text-green-400"
             />
             <Button
               onClick={fetchProfile}
               disabled={loading}
-              className="bg-green-600 hover:bg-green-500 text-black font-bold"
+              className="bg-green-600 hover:bg-green-500 text-white font-bold"
             >
               {loading ? 'Loading...' : 'Generate Meme'}
             </Button>
@@ -66,7 +84,7 @@ export default function MemeForm() {
 
           {/* Meme Result */}
           {loading && (
-            <div className="text-center text-green-400 animate-pulse">
+            <div className="text-center text-white animate-pulse">
               ⚡ Generating Meme...
             </div>
           )}
@@ -80,19 +98,34 @@ export default function MemeForm() {
                 className="object-cover opacity-80"
               />
               <Image
-                src={avatar}
+                src={'/logo.png'}
                 alt="Profile overlay"
                 width={100}
                 height={100}
                 className="absolute bottom-4 left-4 rounded-full border-4 border-green-500"
               />
-              <p className="absolute bottom-4 right-4 text-green-400 font-bold text-lg">
-                #Symbiotic
+              <p className="absolute bottom-4 right-4 text-green-400 font-bold text-xl">
+                Symbiotic
               </p>
             </div>
           )}
         </div>
       </div>
+
+      {error && (
+        <Alert className="text-red-800 fixed top-0" variant={'destructive'}>
+          <AlertTitle>Error!</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="pl-5"
+            onClick={() => setError(null)}
+          >
+            Close
+          </Button>
+        </Alert>
+      )}
     </div>
   )
 }
