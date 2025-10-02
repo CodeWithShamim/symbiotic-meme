@@ -1,4 +1,4 @@
-import GlitchText from '@/components/GlitchText'
+// import GlitchText from '@/components/GlitchText'
 import MemeForm from '@/components/MemeForm'
 import Image from 'next/image'
 

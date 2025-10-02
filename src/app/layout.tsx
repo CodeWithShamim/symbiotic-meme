@@ -12,9 +12,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary via-black to-primary bg-[length:200%_200%] animate-gradient"></div>
-
-        <MatrixBackground />
+        <div>
+          <MatrixBackground />
+        </div>
 
         <Image
           src="/bg.png"

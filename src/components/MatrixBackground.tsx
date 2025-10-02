@@ -17,6 +17,7 @@ export default function MatrixBackground() {
 
     // Characters to use
     const letters = 'SYMBIOTICSYMBIOTIC'.split('')
+
     const fontSize = 20
     const columns = Math.floor(width / fontSize)
     const drops = Array(columns).fill(1)

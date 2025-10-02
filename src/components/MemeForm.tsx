@@ -18,6 +18,7 @@ export default function MemeForm() {
     setLoading(true)
     setMeme(null)
     setError(null)
+    setAvatar(null)
 
     const url = `https://unavatar.io/x/${username}`
     setAvatar(url)
@@ -34,6 +35,7 @@ export default function MemeForm() {
       //   error
       if (data?.error) {
         setError(data?.error?.message)
+        setMeme(url)
       }
       if (data.memeUrl) setMeme(data.memeUrl)
     } catch (err) {
@@ -41,7 +43,6 @@ export default function MemeForm() {
       alert('Failed to generate meme')
     } finally {
       setLoading(false)
-      setMeme(url)
     }
   }
 
