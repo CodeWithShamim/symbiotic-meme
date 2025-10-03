@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import TwitterShareButton from '@/components/TwitterShareButton'
+import { canGenerateMeme, incrementMemeCount } from '@/utils/limit'
 
 export default function MemeForm() {
   const [username, setUsername] = useState('')
@@ -33,6 +34,12 @@ export default function MemeForm() {
       return
     }
 
+    // Check localStorage limit
+    if (!canGenerateMeme()) {
+      setError('You can only generate 2 memes per day on this browser.')
+      return
+    }
+
     const prompt = `Create a funny meme using this profile picture: ${url}. It's a symbiotic.fi crypto project, green-themed items, add "Symbiotic" text.`
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
@@ -48,7 +55,7 @@ export default function MemeForm() {
 
       //   error
       if (data?.error) {
-        setError(data?.error?.error)
+        setError(data?.error?.error || data?.error)
         // setMeme(url)
       }
 
@@ -57,6 +64,8 @@ export default function MemeForm() {
       console.log({ image })
 
       setMeme(image)
+
+      incrementMemeCount()
 
       // if (data.memeUrl) setMeme(data.memeUrl)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
