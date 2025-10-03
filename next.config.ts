@@ -9,7 +9,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "i.imgflip.com",
+        hostname: "imgen.x.ai",
+      },
+      {
+        protocol: "https",
+        hostname: "pbs.twimg.com",
       },
     ],
   },

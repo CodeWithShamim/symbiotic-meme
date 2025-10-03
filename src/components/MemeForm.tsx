@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import TwitterShareButton from '@/components/TwitterShareButton'
 
 export default function MemeForm() {
   const [username, setUsername] = useState('')
@@ -12,6 +13,9 @@ export default function MemeForm() {
   const [loading, setLoading] = useState(false)
   const [meme, setMeme] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const shareText = 'I just created meme by Symbiotic-meme'
+  const hashtags = ['Sybmiotic', 'meme', 'Sham']
 
   const fetchProfile = async () => {
     if (!username) return
@@ -23,24 +27,70 @@ export default function MemeForm() {
     const url = `https://unavatar.io/x/${username}`
     setAvatar(url)
 
+    if (!url) {
+      setLoading(false)
+
+      return
+    }
+
+    const prompt = `Create a funny meme using this profile picture: ${url}. It's a symbiotic.fi crypto project, green-themed items, add "Symbiotic" text.`
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     try {
       const res = await fetch('/api/generate-meme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: url }),
+        body: JSON.stringify({ prompt }),
       })
-      const data = await res.json()
 
+      const data = await res.json()
       console.log({ data })
+
       //   error
       if (data?.error) {
-        setError(data?.error?.message)
-        setMeme(url)
+        setError(data?.error?.error)
+        // setMeme(url)
       }
-      if (data.memeUrl) setMeme(data.memeUrl)
+
+      const image = data.images[0].url
+
+      console.log({ image })
+
+      setMeme(image)
+
+      // if (data.memeUrl) setMeme(data.memeUrl)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      console.error(err)
-      alert('Failed to generate meme')
+      // setError(error)
+      if (!error) {
+        alert('Failed to generate meme')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const downloadMeme = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch(
+        `/api/proxy-image?url=${encodeURIComponent(meme as string)}`
+      )
+      if (!res.ok) throw new Error('Failed to fetch image')
+
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${username + Math.random()}_meme.jpeg`
+
+      link.click()
+
+      // Cleanup
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Download failed', err)
     } finally {
       setLoading(false)
     }
@@ -98,6 +148,7 @@ export default function MemeForm() {
                 fill
                 className="object-cover opacity-80"
               />
+
               <Image
                 src={'/logo.png'}
                 alt="Profile overlay"
@@ -109,6 +160,22 @@ export default function MemeForm() {
                 Symbiotic
               </p>
             </div>
+          )}
+          {meme && (
+            <>
+              <Button
+                onClick={downloadMeme}
+                disabled={!avatar || loading}
+                className="bg-black border border-green-500 text-green-400 font-bold w-full"
+              >
+                {loading ? 'Downloading...' : 'Download'}
+              </Button>
+              <TwitterShareButton
+                text={shareText}
+                url={meme}
+                hashtags={hashtags}
+              />{' '}
+            </>
           )}
         </div>
       </div>

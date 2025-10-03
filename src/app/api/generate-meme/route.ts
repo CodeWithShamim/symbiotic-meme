@@ -1,33 +1,38 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import axios from "axios";
 
 export async function POST(req: Request) {
-  const { imageUrl } = await req.json();
-
-  if (!imageUrl) {
-    return NextResponse.json(
-      { error: "Image URL is required" },
-      { status: 400 }
-    );
-  }
-
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response: any = await openai.images.generate({
-      model: "gpt-image-1",
-      prompt: `Create a funny meme using this profile picture: ${imageUrl}. it's a symbiotic.fi crypto project, image items color green, Add Symbiotic text.`,
-      size: "1024x1024",
-    });
+    const { prompt } = await req.json();
 
-    const memeUrl = response.data[0].url;
-    return NextResponse.json({ memeUrl });
+    const response = await axios.post(
+      "https://api.x.ai/v1/images/generations",
+      {
+        model: "grok-2-image",
+        prompt,
+        n: 1,
+        // size: "512x512",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.GROK_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log({ response });
+
+    return NextResponse.json({ images: response.data.data });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    // console.error(error.error);
-    return NextResponse.json({ error: error.error }, { status: 500 });
+    console.error(
+      "Grok image API error:",
+      error.response?.data || error.message
+    );
+    return NextResponse.json(
+      { error: error.response?.data || "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
