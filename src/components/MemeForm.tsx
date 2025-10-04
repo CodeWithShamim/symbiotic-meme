@@ -56,6 +56,7 @@ export default function MemeForm() {
       //   error
       if (data?.error) {
         setError(data?.error?.error || data?.error)
+        setMeme(url)
         // setMeme(url)
       }
 
@@ -73,6 +74,7 @@ export default function MemeForm() {
       // setError(error)
       if (!error) {
         alert('Failed to generate meme')
+        setMeme(url)
       }
     } finally {
       setLoading(false)
@@ -83,7 +85,9 @@ export default function MemeForm() {
     try {
       setLoading(true)
       const res = await fetch(
-        `/api/proxy-image?url=${encodeURIComponent(meme as string)}`
+        `/api/proxy-image?url=${encodeURIComponent(
+          meme ? meme : (avatar as string)
+        )}`
       )
       if (!res.ok) throw new Error('Failed to fetch image')
 
